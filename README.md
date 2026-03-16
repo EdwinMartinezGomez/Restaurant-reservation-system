@@ -1,68 +1,71 @@
 # Restaurant Reservation System
 
-A full-stack restaurant reservation platform built with **Node.js + Express** (backend), **React + Vite** (frontend), and **PlanetScale** (MySQL-compatible serverless database).
+Plataforma full-stack de reservas de restaurantes construida con **Node.js + Express** (backend), **React + Vite** (frontend) y **TiDB Cloud** (base de datos serverless compatible con MySQL).
 
 ---
 
-## 📁 Project Structure
+## 📁 Estructura Del Proyecto
 
 ```
 restaurant-reservation-system/
-├── backend/                  # Node.js + Express REST API
+├── backend/                  # API REST con Node.js + Express
 │   ├── src/
 │   │   ├── config/
-│   │   │   ├── db.js         # PlanetScale connection pool
-│   │   │   └── schema.sql    # Database schema
-│   │   ├── controllers/      # Business logic
-│   │   ├── middleware/       # Auth & error handler
-│   │   ├── models/           # Data access layer
-│   │   └── routes/           # Express routers
+│   │   │   ├── db.js         # Pool de conexion TiDB/MySQL
+│   │   │   └── schema.sql    # Esquema de base de datos
+│   │   ├── controllers/      # Logica de negocio
+│   │   ├── middleware/       # Auth y manejo de errores
+│   │   ├── models/           # Capa de acceso a datos
+│   │   └── routes/           # Rutas de Express
 │   ├── .env.example
 │   └── package.json
 │
-└── frontend/                 # React + Vite SPA
+└── frontend/                 # SPA con React + Vite
     ├── src/
-    │   ├── __tests__/        # Component tests (Vitest)
-    │   ├── components/       # Shared UI components
+    │   ├── __tests__/        # Pruebas de componentes (Vitest)
+    │   ├── components/       # Componentes UI compartidos
     │   ├── context/          # React Context (auth)
-    │   ├── hooks/            # Custom hooks
-    │   ├── pages/            # Route-level page components
-    │   └── services/         # Axios API wrappers
+    │   ├── hooks/            # Hooks personalizados
+    │   ├── pages/            # Paginas por ruta
+    │   └── services/         # Servicios API con Axios
     ├── .env.example
     └── package.json
 ```
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Inicio Rapido
 
-### Prerequisites
+### Prerrequisitos
 
 - Node.js ≥ 18
-- A free [PlanetScale](https://planetscale.com) account
+- Una cuenta gratuita de [TiDB Cloud](https://tidbcloud.com)
 
-### 1 – Create the PlanetScale database
+### 1. Crear La Base De Datos En TiDB
 
-1. Sign in at [app.planetscale.com](https://app.planetscale.com) and create a new database named `restaurant_reservation`.
-2. Open a **Console** tab and paste the contents of `backend/src/config/schema.sql` to create the tables.
-3. Go to **Connect → Node.js** and copy the connection string values.
+1. Inicia sesion en TiDB Cloud y crea un cluster/base de datos (ejemplo: `electivaI`).
+2. Abre **SQL Editor** y ejecuta el script de [backend/src/config/schema.sql](backend/src/config/schema.sql).
+3. Ve a **Connect → MySQL/Node.js** y copia los valores de conexion.
 
-### 2 – Backend setup
+### 2. Configurar Backend
 
 ```bash
 cd backend
 cp .env.example .env
-# Fill in DATABASE_HOST, DATABASE_USERNAME, DATABASE_PASSWORD, JWT_SECRET
+# Completa DATABASE_HOST, DATABASE_PORT, DATABASE_USERNAME, DATABASE_PASSWORD,
+# DATABASE_NAME y JWT_SECRET
 npm install
 npm run dev
 # → http://localhost:3001
 ```
 
-### 3 – Frontend setup
+### 3. Configurar Frontend
 
 ```bash
 cd frontend
-cp .env.example .env   # optional – Vite proxies /api automatically in dev
+# Opcional en desarrollo local (Vite proxy gestiona /api)
+# Obligatorio en build de produccion:
+# VITE_API_BASE_URL=https://your-backend.onrender.com/api
 npm install
 npm run dev
 # → http://localhost:5173
@@ -70,50 +73,90 @@ npm run dev
 
 ---
 
-## 🔑 Environment Variables
+## 🌐 URLs En Produccion
+
+- Frontend: https://restaurant-frontend-xcuz.onrender.com
+- Backend API: https://restaurant-reservation-system-2ki2.onrender.com
+- Health check: https://restaurant-reservation-system-2ki2.onrender.com/api/health
+
+---
+
+## 👤 Acceso Demo
+
+Si cargaste los datos semilla, puedes iniciar sesion sin registrarte:
+
+- Email: `admin@demo.com`
+- Password: `Admin123!`
+
+Si la cuenta no existe todavia, registrate.
+
+---
+
+## 🔑 Variables De Entorno
 
 ### Backend (`backend/.env`)
 
 | Variable | Description |
 |---|---|
-| `PORT` | Server port (default `3001`) |
-| `NODE_ENV` | `development` or `production` |
-| `DATABASE_HOST` | PlanetScale host |
-| `DATABASE_USERNAME` | PlanetScale username |
-| `DATABASE_PASSWORD` | PlanetScale password |
-| `DATABASE_NAME` | Database name |
-| `JWT_SECRET` | Secret key for signing JWTs |
-| `JWT_EXPIRES_IN` | JWT lifetime (e.g. `7d`) |
-| `CORS_ORIGIN` | Comma-separated list of allowed origins |
+| `PORT` | Puerto del servidor (por defecto `3001`) |
+| `NODE_ENV` | `development` o `production` |
+| `DATABASE_HOST` | Host de TiDB (sin `http://`) |
+| `DATABASE_PORT` | Puerto de TiDB (normalmente `4000`) |
+| `DATABASE_USERNAME` | Usuario SQL de TiDB |
+| `DATABASE_PASSWORD` | Password SQL de TiDB |
+| `DATABASE_NAME` | Nombre de la base de datos |
+| `JWT_SECRET` | Clave secreta para firmar JWT |
+| `JWT_EXPIRES_IN` | Tiempo de vida del JWT (ej. `7d`) |
+| `CORS_ORIGIN` | Lista de origenes permitidos separada por comas |
 
 ### Frontend (`frontend/.env`)
 
 | Variable | Description |
 |---|---|
-| `VITE_API_BASE_URL` | API base URL (not needed in dev – Vite proxy is used) |
+| `VITE_API_BASE_URL` | URL base de la API (obligatoria en produccion) |
 
 ---
 
-## 📡 API Endpoints
+## 🔌 Conexion A TiDB (Como Se Configuro)
+
+El backend usa `mysql2` con TLS para conectarse a TiDB Cloud.
+
+1. En TiDB Cloud, crea credenciales SQL y copia host/usuario/password/base de datos/puerto.
+2. En Render (servicio backend), configura:
+    - `DATABASE_HOST`
+    - `DATABASE_PORT=4000`
+    - `DATABASE_USERNAME`
+    - `DATABASE_PASSWORD`
+    - `DATABASE_NAME`
+3. TLS se aplica en [backend/src/config/db.js](backend/src/config/db.js) con:
+    - `ssl: { rejectUnauthorized: true }`
+4. Tambien se normaliza el host en [backend/src/config/db.js](backend/src/config/db.js) para evitar valores invalidos en variables (`http://...` o `/` al final).
+5. En Render (backend), configura `CORS_ORIGIN=https://restaurant-frontend-xcuz.onrender.com`.
+6. En Render (frontend), configura `VITE_API_BASE_URL=https://restaurant-reservation-system-2ki2.onrender.com/api`.
+7. Haz redeploy de ambos servicios despues de actualizar variables.
+
+---
+
+## 📡 Endpoints De La API
 
 | Method | Path | Auth | Description |
 |---|---|---|---|
-| POST | `/api/auth/register` | — | Register a new user |
-| POST | `/api/auth/login` | — | Login and receive a JWT |
-| GET  | `/api/auth/me` | JWT | Get current user |
-| GET  | `/api/restaurants` | — | List all restaurants |
-| GET  | `/api/restaurants/:id` | — | Get a single restaurant |
-| POST | `/api/restaurants` | Admin | Create a restaurant |
-| PUT  | `/api/restaurants/:id` | Admin | Update a restaurant |
-| DELETE | `/api/restaurants/:id` | Admin | Delete a restaurant |
-| GET  | `/api/reservations` | JWT | List user's reservations (admins see all) |
-| POST | `/api/reservations` | JWT | Create a reservation |
-| PUT  | `/api/reservations/:id` | JWT | Update a reservation |
-| DELETE | `/api/reservations/:id` | JWT | Cancel a reservation |
+| POST | `/api/auth/register` | — | Registrar nuevo usuario |
+| POST | `/api/auth/login` | — | Iniciar sesion y recibir JWT |
+| GET  | `/api/auth/me` | JWT | Obtener usuario actual |
+| GET  | `/api/restaurants` | — | Listar restaurantes |
+| GET  | `/api/restaurants/:id` | — | Obtener un restaurante |
+| POST | `/api/restaurants` | Admin | Crear restaurante |
+| PUT  | `/api/restaurants/:id` | Admin | Actualizar restaurante |
+| DELETE | `/api/restaurants/:id` | Admin | Eliminar restaurante |
+| GET  | `/api/reservations` | JWT | Listar reservas del usuario (admin ve todas) |
+| POST | `/api/reservations` | JWT | Crear reserva |
+| PUT  | `/api/reservations/:id` | JWT | Actualizar reserva |
+| DELETE | `/api/reservations/:id` | JWT | Cancelar reserva |
 
 ---
 
-## 🧪 Running Tests
+## 🧪 Ejecutar Pruebas
 
 ```bash
 # Backend
@@ -125,17 +168,12 @@ cd frontend && npm test
 
 ---
 
-## 🛠 Tech Stack
+## 🛠 Stack Tecnologico
 
 | Layer | Technology |
 |---|---|
 | Frontend | React 19, React Router v7, Vite 8, Axios |
 | Backend | Node.js 18+, Express 5, express-validator, JWT, bcryptjs |
-| Database | PlanetScale (MySQL-compatible serverless DB) |
-| DB Driver | mysql2 / @planetscale/database |
+| Database | TiDB Cloud (DB serverless compatible con MySQL) |
+| DB Driver | mysql2 |
 | Despliegue | Docker, Docker Compose, Render |
-
-## 🌐 Despliegue
-El sistema se encuentra desplegado y funcionando en la nube con uso de **Render** y **Docker**:
-- **Frontend:** https://restaurant-frontend-xcuz.onrender.com
-- **Backend (API):** https://restaurant-reservation-system-2ki2.onrender.com
